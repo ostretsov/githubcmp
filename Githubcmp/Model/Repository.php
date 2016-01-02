@@ -32,7 +32,7 @@ class Repository
     /**
      * @var int
      *
-     * @Weight(0.5)
+     * @Weight(0.7)
      */
     public $forks;
 
@@ -42,6 +42,34 @@ class Repository
      * @Weight(0.1)
      */
     public $openIssues;
+
+    /**
+     * @var int
+     *
+     * @Weight(0.7)
+     */
+    public $subscribersCount;
+
+    /**
+     * @var int
+     *
+     * @Weight(0.1)
+     */
+    public $userPublicRepos;
+
+    /**
+     * @var int
+     *
+     * @Weight(0.1)
+     */
+    public $commitsCount;
+
+    /**
+     * @var int
+     *
+     * @Weight(1)
+     */
+    public $contributorsCount;
 
     /**
      * @var float
