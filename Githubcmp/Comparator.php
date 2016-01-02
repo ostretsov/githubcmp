@@ -8,7 +8,6 @@
 namespace Githubcmp;
 
 use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\Common\Annotations\AnnotationRegistry;
 use Githubcmp\Annotation\Weight;
 use Githubcmp\Model\Repository;
 use Symfony\Component\PropertyAccess\PropertyAccess;
@@ -17,15 +16,14 @@ class Comparator
 {
     /**
      * @param Repository[] $repositories
+     *
+     * @return Repository[]
      */
     public function compare(array $repositories)
     {
         if (count($repositories) < 2) {
             throw new \InvalidArgumentException('At least two Repositories must be specified!');
         }
-
-        // TODO move to bootstrap
-        AnnotationRegistry::registerAutoloadNamespace('Githubcmp', dirname(__DIR__));
 
         $reflectedClass = new \ReflectionClass(Repository::class);
         $reader = new AnnotationReader();
