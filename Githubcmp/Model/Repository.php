@@ -48,9 +48,17 @@ class Repository
      */
     private $weight;
 
-    public function __construct()
+    /**
+     * @var int Rating in percentage
+     */
+    private $rating;
+
+    public function __construct($username, $repository)
     {
+        $this->username = $username;
+        $this->repository = $repository;
         $this->weight = 0.0;
+        $this->rating = 0;
     }
 
     /**
@@ -67,5 +75,37 @@ class Repository
     public function getWeight()
     {
         return $this->weight;
+    }
+
+    /**
+     * @return int
+     */
+    public function getRating()
+    {
+        return $this->rating;
+    }
+
+    /**
+     * @param int $rating
+     */
+    public function setRating($rating)
+    {
+        if ($rating > 100) {
+            throw new \InvalidArgumentException('Rating can\'t be greater than 100!');
+        }
+
+        $this->rating = $rating;
+    }
+
+    /**
+     * @param int $delta
+     */
+    public function addRating($delta)
+    {
+        if ($this->rating + $delta > 100) {
+            throw new \InvalidArgumentException('Rating can\'t be greater than 100!');
+        }
+
+        $this->rating += $delta;
     }
 }
