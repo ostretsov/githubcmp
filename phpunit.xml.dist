@@ -15,4 +15,8 @@
             <directory>./Githubcmp/Tests</directory>
         </testsuite>
     </testsuites>
+
+    <php>
+        <const name="API_TOKEN" value=""/>
+    </php>
 </phpunit>

@@ -14,19 +14,31 @@ use Githubcmp\Model\Repository;
 class GithubRepositoryBuilder implements RepositoryBuilderInterface
 {
     /**
+     * @var string
+     */
+    private $apiToken;
+
+    /**
      * @var Repository
      */
-    private $repository;
+    private $repository = null;
 
-    public function __construct($username, $repository)
+    /**
+     * @param string $apiToken
+     */
+    public function __construct($apiToken = '')
     {
-        $this->repository = new Repository($username, $repository);
-        $this->build();
+        $this->apiToken = $apiToken;
     }
 
-    public function build()
+    public function build($username, $repository)
     {
+        $this->repository = new Repository($username, $repository);
+
         $client = new Client();
+        if ($this->apiToken) {
+            $client->authenticate($this->apiToken, null, Client::AUTH_HTTP_TOKEN);
+        }
 
         // repository data
         $data = $client->api('repo')->show($this->repository->username, $this->repository->repository);
@@ -38,7 +50,10 @@ class GithubRepositoryBuilder implements RepositoryBuilderInterface
 
         // repository commit activity
         $activity = $client->api('repo')->activity($this->repository->username, $this->repository->repository);
-        $this->repository->commitsCount = array_sum(array_map(function (array $weekCommits) { return $weekCommits['total']; }, $activity));
+        $commitsLastYear = array_map(function (array $weekCommits) { return $weekCommits['total']; }, $activity);
+        $this->repository->commitsCount = array_sum($commitsLastYear);
+        $this->repository->commitsLastMonthCount = array_sum(array_slice($commitsLastYear, -4));
+        $this->repository->avgCommitsPerWeek = floor(array_sum($commitsLastYear) / count($commitsLastYear));
 
         // repository contributors
         $paginator = new ResultPager($client);
@@ -56,6 +71,8 @@ class GithubRepositoryBuilder implements RepositoryBuilderInterface
         // user data
         $user = $client->api('user')->show($this->repository->username);
         $this->repository->userPublicRepos = $user['public_repos'];
+
+        return $this;
     }
 
     /**
@@ -63,6 +80,10 @@ class GithubRepositoryBuilder implements RepositoryBuilderInterface
      */
     public function getResult()
     {
+        if (null === $this->repository) {
+            throw new \RuntimeException('Repository was not built!');
+        }
+
         return $this->repository;
     }
 }
