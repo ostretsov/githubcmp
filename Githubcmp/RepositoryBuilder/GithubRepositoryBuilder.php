@@ -34,9 +34,9 @@ class GithubRepositoryBuilder implements RepositoryBuilderInterface
     public function __construct($apiToken = '')
     {
         $this->apiToken = $apiToken;
-        $client = new Client();
+        $this->client = new Client();
         if ($apiToken) {
-            $client->authenticate($apiToken, null, Client::AUTH_HTTP_TOKEN);
+            $this->client->authenticate($apiToken, null, Client::AUTH_HTTP_TOKEN);
         }
     }
 
