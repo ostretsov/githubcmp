@@ -23,24 +23,26 @@ class GithubRepositoryBuilderTest extends \PHPUnit_Framework_TestCase
 
         $symfonyRepository = $builder->build('symfony', 'symfony')->getResult();
         $laravelRepository = $builder->build('laravel', 'laravel')->getResult();
+        $yii2Repository = $builder->build('yiisoft', 'yii2')->getResult();
+        $codeIgniterRepository = $builder->build('bcit-ci', 'CodeIgniter')->getResult();
 
         // check built repositories
         $this->checkBuiltRepository($symfonyRepository);
         $this->checkBuiltRepository($laravelRepository);
+        $this->checkBuiltRepository($yii2Repository);
+        $this->checkBuiltRepository($codeIgniterRepository);
 
         $comparator = new Comparator();
-        $result = $comparator->compare([$symfonyRepository, $laravelRepository]);
+        $result = $comparator->compare([$symfonyRepository, $laravelRepository, $yii2Repository, $codeIgniterRepository]);
 
         // check results
-        $this->assertCount(2, $result);
+        $this->assertCount(4, $result);
 
-        $this->checkBuiltRepository($result[0]);
-        $this->assertGreaterThan(0, $result[0]->getWeight());
-        $this->assertGreaterThan(0, $result[0]->getRating());
-
-        $this->checkBuiltRepository($result[1]);
-        $this->assertGreaterThan(0, $result[1]->getWeight());
-        $this->assertGreaterThan(0, $result[1]->getRating());
+        foreach ($result as $repository) {
+            $this->checkBuiltRepository($repository);
+            $this->assertGreaterThan(0, $repository->getWeight());
+            $this->assertGreaterThan(0, $repository->getRating());
+        }
     }
 
     private function checkBuiltRepository(Repository $repository)

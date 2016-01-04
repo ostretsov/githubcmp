@@ -49,11 +49,13 @@ class GithubRepositoryBuilder implements RepositoryBuilderInterface
         $this->repository->subscribersCount = $data['subscribers_count'];
 
         // repository commit activity
-        $activity = $client->api('repo')->activity($this->repository->username, $this->repository->repository);
+        do {
+            $activity = $client->api('repo')->activity($this->repository->username, $this->repository->repository);
+        } while ($client->getHttpClient()->getLastResponse()->getStatusCode() != 200 && sleep(3));
         $commitsLastYear = array_map(function (array $weekCommits) { return $weekCommits['total']; }, $activity);
         $this->repository->commitsCount = array_sum($commitsLastYear);
         $this->repository->commitsLastMonthCount = array_sum(array_slice($commitsLastYear, -4));
-        $this->repository->avgCommitsPerWeek = floor(array_sum($commitsLastYear) / count($commitsLastYear));
+        $this->repository->avgCommitsPerWeek = count($commitsLastYear) > 0 ? floor(array_sum($commitsLastYear) / count($commitsLastYear)) : 0;
 
         // repository contributors
         $paginator = new ResultPager($client);
