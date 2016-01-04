@@ -24,24 +24,28 @@ class GithubRepositoryBuilder implements RepositoryBuilderInterface
     private $repository = null;
 
     /**
+     * @var Client
+     */
+    private $client;
+
+    /**
      * @param string $apiToken
      */
     public function __construct($apiToken = '')
     {
         $this->apiToken = $apiToken;
+        $client = new Client();
+        if ($apiToken) {
+            $client->authenticate($apiToken, null, Client::AUTH_HTTP_TOKEN);
+        }
     }
 
     public function build($username, $repository)
     {
         $this->repository = new Repository($username, $repository);
 
-        $client = new Client();
-        if ($this->apiToken) {
-            $client->authenticate($this->apiToken, null, Client::AUTH_HTTP_TOKEN);
-        }
-
         // repository data
-        $data = $client->api('repo')->show($this->repository->username, $this->repository->repository);
+        $data = $this->client->api('repo')->show($this->repository->username, $this->repository->repository);
         $this->repository->size = $data['size'];
         $this->repository->stargazersCount = $data['stargazers_count'];
         $this->repository->forks = $data['forks'];
@@ -50,17 +54,17 @@ class GithubRepositoryBuilder implements RepositoryBuilderInterface
 
         // repository commit activity
         do {
-            $activity = $client->api('repo')->activity($this->repository->username, $this->repository->repository);
-        } while ($client->getHttpClient()->getLastResponse()->getStatusCode() != 200 && sleep(3));
+            $activity = $this->client->api('repo')->activity($this->repository->username, $this->repository->repository);
+        } while ($this->client->getHttpClient()->getLastResponse()->getStatusCode() != 200 && sleep(3));
         $commitsLastYear = array_map(function (array $weekCommits) { return $weekCommits['total']; }, $activity);
         $this->repository->commitsCount = array_sum($commitsLastYear);
         $this->repository->commitsLastMonthCount = array_sum(array_slice($commitsLastYear, -4));
         $this->repository->avgCommitsPerWeek = count($commitsLastYear) > 0 ? floor(array_sum($commitsLastYear) / count($commitsLastYear)) : 0;
 
         // repository contributors
-        $paginator = new ResultPager($client);
+        $paginator = new ResultPager($this->client);
         $contributors = $paginator->fetchAll(
-            $client->api('repo'),
+            $this->client->api('repo'),
             'contributors',
             [
                 $this->repository->username,
@@ -71,7 +75,7 @@ class GithubRepositoryBuilder implements RepositoryBuilderInterface
         $this->repository->contributorsCount = count($contributors);
 
         // user data
-        $user = $client->api('user')->show($this->repository->username);
+        $user = $this->client->api('user')->show($this->repository->username);
         $this->repository->userPublicRepos = $user['public_repos'];
 
         return $this;
@@ -87,5 +91,13 @@ class GithubRepositoryBuilder implements RepositoryBuilderInterface
         }
 
         return $this->repository;
+    }
+
+    /**
+     * @return Client
+     */
+    public function getClient()
+    {
+        return $this->client;
     }
 }
