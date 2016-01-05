@@ -55,7 +55,13 @@ class GithubRepositoryBuilder implements RepositoryBuilderInterface
         // repository commit activity
         do {
             $activity = $this->client->api('repo')->activity($this->repository->username, $this->repository->repository);
-        } while ($this->client->getHttpClient()->getLastResponse()->getStatusCode() != 200 && sleep(3));
+            $responseStatusCode = $this->client->getHttpClient()->getLastResponse()->getStatusCode();
+            if ($responseStatusCode != 200) {
+                sleep(3);
+            } else {
+                break;
+            }
+        } while (true);
         $commitsLastYear = array_map(function (array $weekCommits) { return $weekCommits['total']; }, $activity);
         $this->repository->commitsCount = array_sum($commitsLastYear);
         $this->repository->commitsLastMonthCount = array_sum(array_slice($commitsLastYear, -4));
