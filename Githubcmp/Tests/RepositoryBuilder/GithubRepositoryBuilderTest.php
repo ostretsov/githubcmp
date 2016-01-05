@@ -13,6 +13,9 @@ use Githubcmp\RepositoryBuilder\GithubRepositoryBuilder;
 
 class GithubRepositoryBuilderTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @group functional
+     */
     public function testBuild()
     {
         if (!defined('API_TOKEN')) {
