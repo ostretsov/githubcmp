@@ -19,7 +19,7 @@ class Comparator
      *
      * @return Repository[]
      */
-    public function compare(array $repositories)
+    public function compare(array $repositories, $options = [])
     {
         if (count($repositories) < 2) {
             throw new \InvalidArgumentException('At least two Repositories must be specified!');
@@ -36,7 +36,10 @@ class Comparator
             foreach ($reflectedClass->getProperties() as $property) {
                 foreach ($reader->getPropertyAnnotations($property) as $annotation) {
                     if ($annotation instanceof Weight) {
-                        $repository->addWeight($propertyAccessor->getValue($repository, $property->name) * $annotation->value);
+                        $optionName = strtolower(preg_replace('/([^A-Z])([A-Z])/', '$1_$2', $property->name));
+                        $factor = isset($options[$optionName]) ? floatval($options[$optionName]) : $annotation->value;
+
+                        $repository->addWeight($propertyAccessor->getValue($repository, $property->name) * $factor);
                     }
                 }
             }

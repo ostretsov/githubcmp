@@ -24,8 +24,35 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @group unit
+     * @dataProvider getRepositories
      */
-    public function testCompare()
+    public function testCompare($repo1, $repo2)
+    {
+        $result = $this->comparator->compare([$repo2, $repo1]);
+        $this->assertEquals('first', $result[0]->username);
+        $this->assertEquals('second', $result[1]->username);
+    }
+
+    /**
+     * @group unit
+     * @dataProvider getRepositories
+     */
+    public function testCompareWithOptions($repo1, $repo2)
+    {
+        $result = $this->comparator->compare(
+            [
+                $repo1,
+                $repo2,
+            ],
+            [
+                'open_issues' => 1000,
+            ]
+        );
+        $this->assertEquals('second', $result[0]->username);
+        $this->assertEquals('first', $result[1]->username);
+    }
+
+    public function getRepositories()
     {
         $repo1 = new Repository('first', 'repo1');
         $repo1->size = 85000;
@@ -37,10 +64,10 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $repo2->size = 5000;
         $repo2->stargazersCount = 1000;
         $repo2->forks = 40;
-        $repo2->openIssues = 30;
+        $repo2->openIssues = 30000;
 
-        $result = $this->comparator->compare([$repo2, $repo1]);
-        $this->assertEquals('first', $result[0]->username);
-        $this->assertEquals('second', $result[1]->username);
+        return [
+            [$repo1, $repo2],
+        ];
     }
 }
