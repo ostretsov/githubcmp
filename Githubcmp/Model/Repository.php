@@ -18,21 +18,21 @@ class Repository
     /**
      * @var int
      *
-     * @Weight(0.2)
+     * @Weight(0.001)
      */
     public $size;
 
     /**
      * @var int
      *
-     * @Weight(0.7)
+     * @Weight(1)
      */
     public $stargazersCount;
 
     /**
      * @var int
      *
-     * @Weight(1)
+     * @Weight(0.9)
      */
     public $forks;
 
@@ -53,28 +53,28 @@ class Repository
     /**
      * @var int
      *
-     * @Weight(0.2)
+     * @Weight(0.3)
      */
     public $userPublicRepos;
 
     /**
      * @var int
      *
-     * @Weight(0.5)
+     * @Weight(0.8)
      */
     public $commitsCount;
 
     /**
      * @var int
      *
-     * @Weight(0.8)
+     * @Weight(0.9)
      */
     public $commitsLastMonthCount;
 
     /**
      * @var int
      *
-     * @Weight(2)
+     * @Weight(1)
      */
     public $avgCommitsPerWeek;
 
